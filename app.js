@@ -14,6 +14,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.set("trust proxy", true);
 
 // Routes
 // Simple route to check if the server is running
@@ -21,11 +22,31 @@ app.get("/", (req, res) => {
   res.send("Hello World!");
 });
 
+const getClientIP = (req) => {
+  return (
+    req.headers["x-forwarded-for"]?.split(",")[0] ||
+    req.headers["x-real-ip"] ||
+    req.connection?.remoteAddress ||
+    req.socket?.remoteAddress ||
+    req.ip
+  );
+};
+
 // Endpoint to fetch user location based on IP address
 app.get("/api/user-location", async (req, res) => {
-  const ip = req.socket.remoteAddress;
+  let clientIP = getClientIP(req);
+
+  // Handle localhost/local IPs
+  if (
+    clientIP === "::1" ||
+    clientIP === "127.0.0.1" ||
+    clientIP?.startsWith("192.168.") ||
+    clientIP?.startsWith("10.")
+  ) {
+    clientIP = "8.8.8.8"; // Test IP for development
+  }
   try {
-    const { data } = await axios.get(`${API_URI}/${ip}/json`);
+    const { data } = await axios.get(`${API_URI}/${clientIP}/json`);
 
     res.status(200).json({
       ...data,

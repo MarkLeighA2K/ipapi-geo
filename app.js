@@ -14,7 +14,7 @@ app.use(
   })
 );
 app.use(express.json());
-app.set("trust proxy", true);
+app.set("trust proxy", 1);
 
 // Routes
 // Simple route to check if the server is running

@@ -23,7 +23,7 @@ app.get("/", (req, res) => {
 
 // Endpoint to fetch user location based on IP address
 app.get("/api/user-location", async (req, res) => {
-  const ip = req.ip || req.socket.remoteAddress;
+  const ip = req.socket.remoteAddress;
   try {
     const { data } = await axios.get(`${API_URI}/${ip}/json`);
 
